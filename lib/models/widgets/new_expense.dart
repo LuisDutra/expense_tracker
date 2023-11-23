@@ -1,3 +1,4 @@
+import 'package:expense_tracker/models/expense.dart';
 import 'package:flutter/material.dart';
 
 class NewExpense extends StatefulWidget {
@@ -12,6 +13,19 @@ class NewExpense extends StatefulWidget {
 class _NewExpensneState extends State<NewExpense> {
   final _titleController = TextEditingController();
   final _amountController = TextEditingController();
+  DateTime? _selectDate;
+
+  void _presentDatePicker() async {
+    final Date = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(DateTime.now().year - 1),
+        lastDate: DateTime.now());
+
+    setState(() {
+      _selectDate = Date;
+    });
+  }
 
   @override
   void dispose() {
@@ -32,13 +46,38 @@ class _NewExpensneState extends State<NewExpense> {
             label: Text("Title"),
           ),
         ),
-        TextField(
-          controller: _amountController,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            prefixText: '\$ ',
-            label: Text("Amount"),
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _amountController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  prefixText: '\$ ',
+                  label: Text("Amount"),
+                ),
+              ),
+            ),
+            const SizedBox(
+              width: 16,
+            ),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(_selectDate == null
+                      ? 'No Date Selected'
+                      : formatter.format(_selectDate!)),
+                  IconButton(
+                      onPressed: _presentDatePicker,
+                      icon: const Icon(
+                        Icons.calendar_month,
+                      ))
+                ],
+              ),
+            )
+          ],
         ),
         Row(
           children: [
@@ -50,11 +89,11 @@ class _NewExpensneState extends State<NewExpense> {
               child: const Text('Save Expense'),
             ),
             const SizedBox(
-              width: 100,
+              width: 1,
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.pop(context);
               },
               child: const Text('Cancel'),
             )
