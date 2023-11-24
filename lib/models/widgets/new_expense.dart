@@ -14,16 +14,42 @@ class _NewExpensneState extends State<NewExpense> {
   final _titleController = TextEditingController();
   final _amountController = TextEditingController();
   DateTime? _selectDate;
+  Category _selectCategory = Category.leisure;
+
+  void _summitExpenseData() {
+    final ammount = double.tryParse(_amountController.text);
+
+    if (_titleController.text.trim().isEmpty ||
+        ammount == null ||
+        ammount < 0 ||
+        _selectDate == null) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text("Invalid Input"),
+          content: const Text('Please make sure to enter all data'),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                },
+                child: const Text('Close'))
+          ],
+        ),
+      );
+      return;
+    }
+  }
 
   void _presentDatePicker() async {
-    final Date = await showDatePicker(
+    final date = await showDatePicker(
         context: context,
         initialDate: DateTime.now(),
         firstDate: DateTime(DateTime.now().year - 1),
         lastDate: DateTime.now());
 
     setState(() {
-      _selectDate = Date;
+      _selectDate = date;
     });
   }
 
@@ -79,24 +105,43 @@ class _NewExpensneState extends State<NewExpense> {
             )
           ],
         ),
+        const SizedBox(
+          height: 16,
+        ),
         Row(
           children: [
-            ElevatedButton(
-              onPressed: () {
-                print(_titleController.text);
-                print(_amountController.text);
-              },
-              child: const Text('Save Expense'),
-            ),
-            const SizedBox(
-              width: 1,
-            ),
-            ElevatedButton(
+            DropdownButton(
+                value: _selectCategory,
+                items: Category.values
+                    .map(
+                      (category) => DropdownMenuItem(
+                        value: category,
+                        child: Text(category.name.toUpperCase()),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    if (value == null) {
+                      return;
+                    }
+                    _selectCategory = value;
+                  });
+                }),
+            const Spacer(),
+            TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
               child: const Text('Cancel'),
-            )
+            ),
+            ElevatedButton(
+              onPressed: _summitExpenseData,
+              child: const Text('Save Expense'),
+            ),
+            const SizedBox(
+              width: 16,
+            ),
           ],
         )
       ]),
